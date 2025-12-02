@@ -12,7 +12,8 @@ from tkinter import filedialog, messagebox, ttk
 
 from config import build_title_description_from_filename
 from csv_writer import write_quiz_csv
-from pdf_parser import extract_text_from_pdf, parse_quiz_from_text
+from pdf_parser import extract_text_from_pdf
+from quiz_generator import generate_quiz_from_text
 
 
 class QuizProcessorApp:
@@ -100,11 +101,11 @@ class QuizProcessorApp:
                 self.log(f"Traitement de {filename}...")
                 try:
                     text = extract_text_from_pdf(pdf_path)
-                    questions = parse_quiz_from_text(text)
+                    title, description, category = build_title_description_from_filename(filename)
+                    questions = generate_quiz_from_text(text, category, nb_questions=20)
                     if not questions:
-                        raise ValueError("Aucune question détectée dans le fichier.")
+                        raise ValueError("Aucune question générée par le modèle.")
 
-                    title, description = build_title_description_from_filename(filename)
                     csv_name = os.path.splitext(filename)[0] + ".csv"
                     output_path = os.path.join(output_dir, csv_name)
                     write_quiz_csv(title, description, questions, output_path)
